@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+## root up
+sudo -s
+
+## Set TLD zone
+TLD="dev"
+
+## Message helper
+message() {
+  echo "$(tput bold)$(tput setaf 2)$@$(tput sgr0)"
+}
+
+## Begin
+clear
+
+## Generate RNDC key
+message "1. Generate RNDC key"
+rndc-confgen -a -c /etc/rndc.key
+
+## Add zone to /etc/named.conf
+message "2. Add .$TLD TLD zone to /etc/named.conf"
+echo "
+// .$TLD zone configuration
+zone \"$TLD\" IN {
+  type master;
+  file \"$TLD.zone\";
+  allow-update { none; };
+};" >> /etc/named.conf
+
+## Create zone file in /var/named
+message "3. Create $TLD.zone file in /var/named"
+echo "\$TTL  60
+\$ORIGIN $TLD.
+@	1D IN SOA  localhost. root.localhost. (45 3H 15M 1W 1D)
+
+	1D IN NS  localhost.
+	1D IN A  127.0.0.1
+
+*.$TLD. 60 IN A 127.0.0.1" > "/var/named/$TLD.zone"
+
+# Start BIND
+message "4. Start BIND"
+launchctl load -w /System/Library/LaunchDaemons/org.isc.named.plist
+
+echo; message "Complete!"; echo
