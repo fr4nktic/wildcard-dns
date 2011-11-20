@@ -22,3 +22,7 @@ Run this one-liner:
 If a different TLD is required, simply clone this repo and change the `TLD` variable in the `install` file and run:
 
 	bash < install
+
+## More Information
+
+Read [Setting Up Wildcard DNS on OSX](http://sqrhedz.com/post/12965056278/setting-up-wildcard-dns-on-osx) for more detailed information.
